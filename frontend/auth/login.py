@@ -1,6 +1,8 @@
 import os
 
 import streamlit as st
+import streamlit.components.v1 as components
+import json
 from dotenv import load_dotenv
 
 
@@ -157,20 +159,7 @@ export default function(component) {
 }
 """
 
-
-google_login_component = st.components.v2.component(
-    "fraudshield_google_login",
-    html=LOGIN_HTML,
-    css=LOGIN_CSS,
-    js=LOGIN_JS,
-)
-
-
 def render_login():
-    st.markdown(
-        '<div class="firebase-login-marker"></div>',
-        unsafe_allow_html=True,
-    )
 
     missing = [
         key
@@ -185,22 +174,78 @@ def render_login():
         )
         st.stop()
 
-    result = google_login_component(
-        data={
-            "firebaseConfig": FIREBASE_CONFIG,
-        },
-        key="firebase_google_login",
-        on_auth_result_change=lambda: None,
+    firebase_config_json = json.dumps(
+        FIREBASE_CONFIG
     )
 
-    auth_result = getattr(
-        result,
-        "auth_result",
-        None,
+    components.html(
+        f"""
+        <style>
+        {LOGIN_CSS}
+        </style>
+
+        <div class="login-card">
+            <h2>FraudShield AI</h2>
+            <p>Sign in securely with your Google account.</p>
+
+            <button id="google-login">
+                Continue with Google
+            </button>
+
+            <p id="login-status"></p>
+        </div>
+
+        <script type="module">
+
+        import {{
+            initializeApp
+        }} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+        import {{
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup
+        }} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+
+        const firebaseConfig = {firebase_config_json};
+
+        const app = initializeApp(firebaseConfig);
+
+        const auth = getAuth(app);
+
+        const provider = new GoogleAuthProvider();
+
+
+        document
+        .getElementById("google-login")
+        .onclick = async () => {{
+
+            const result =
+                await signInWithPopup(
+                    auth,
+                    provider
+                );
+
+            const token =
+                await result.user.getIdToken();
+
+
+            window.parent.postMessage(
+                {{
+                    type: "firebase_login",
+                    user: {{
+                        uid: result.user.uid,
+                        email: result.user.email,
+                        name: result.user.displayName,
+                        id_token: token
+                    }}
+                }},
+                "*"
+            );
+        }}
+
+        </script>
+        """,
+        height=350,
     )
-
-    if auth_result:
-        st.session_state["firebase_user"] = auth_result
-        st.rerun()
-
-    return st.session_state.get("firebase_user")
