@@ -3,7 +3,7 @@ import sys
 import os
 import requests
 from dotenv import load_dotenv
-from frontend.auth.login import render_login
+from auth.login import render_login
 
 # Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
