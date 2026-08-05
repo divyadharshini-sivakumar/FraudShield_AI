@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, JSON, Text, DateTime
-from sqlalchemy.orm import declarative_base
 from datetime import datetime
+from app.db.session import Base
 
-Base = declarative_base()
 
 class Prediction(Base):
     __tablename__ = "predictions"
