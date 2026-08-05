@@ -1,8 +1,8 @@
+import json
 import os
 
+import requests
 import streamlit as st
-import streamlit.components.v1 as components
-import json
 from dotenv import load_dotenv
 
 
@@ -19,70 +19,75 @@ FIREBASE_CONFIG = {
 }
 
 
-LOGIN_HTML = """
-<div class="login-card">
-    <h2>FraudShield AI</h2>
-    <p>Sign in securely with your Google account.</p>
+def firebase_login_page():
 
-    <button id="google-login">
-        Continue with Google
-    </button>
+    st.markdown(
+        """
+        <style>
+        .login-card {
+            max-width:430px;
+            margin:60px auto;
+            padding:35px;
+            text-align:center;
+            background:#1A0033;
+            border:1px solid #5A189A;
+            border-radius:16px;
+            color:white;
+        }
 
-    <p id="login-status"></p>
-</div>
-"""
+        .login-title {
+            font-size:32px;
+            font-weight:700;
+        }
+
+        .login-text {
+            color:#C8B8DB;
+            margin-bottom:25px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
-LOGIN_CSS = """
-.login-card {
-    max-width: 430px;
-    margin: 25px auto;
-    padding: 34px;
-    text-align: center;
-    background: rgba(60, 9, 108, 0.28);
-    border: 1px solid #5A189A;
-    border-radius: 14px;
-    color: #FFFFFF;
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
-}
+    st.markdown(
+        """
+        <div class="login-card">
 
-.login-card h2 {
-    color: #FFFFFF;
-    font-size: 30px;
-    margin: 0 0 12px 0;
-}
+        <div class="login-title">
+        🛡️ FraudShield AI
+        </div>
 
-.login-card p {
-    color: #C8B8DB;
-    margin-bottom: 22px;
-}
+        <br>
 
-#google-login {
-    width: 100%;
-    padding: 13px 20px;
-    border: 1px solid #5A189A;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #7B2CBF, #9D4EDD);
-    color: #FFFFFF;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-}
+        <div class="login-text">
+        Sign in securely with your Google account.
+        </div>
 
-#google-login:hover {
-    background: linear-gradient(135deg, #9D4EDD, #B75CFF);
-}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-#google-login:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-}
 
-#login-status {
-    margin-top: 16px;
-    color: #C8B8DB;
-}
-"""
+    login_url = (
+        "https://accounts.google.com/o/oauth2/v2/auth"
+        "?client_id="
+        + os.getenv("GOOGLE_CLIENT_ID", "")
+        + "&redirect_uri="
+        + os.getenv("GOOGLE_REDIRECT_URI", "")
+        + "&response_type=id_token"
+        "&scope=email%20profile%20openid"
+        "&nonce=firebase"
+    )
+
+
+    st.link_button(
+        "Continue with Google",
+        login_url,
+        use_container_width=True,
+    )
+
 
 def render_login():
 
@@ -99,96 +104,13 @@ def render_login():
         )
         st.stop()
 
-    st.markdown(
-        """
-        <div class="login-card">
-            <h2>FraudShield AI</h2>
-            <p>Sign in securely with your Google account.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
-    login_clicked = st.button(
-        "Continue with Google",
-        use_container_width=True,
-    )
-
-    if login_clicked:
-        st.info(
-            "Firebase login initialization started."
-        )
-
-        components.html(
-            f"""
-            <script type="module">
-
-            import {{
-                initializeApp
-            }}
-            from
-            "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-
-            import {{
-                getAuth,
-                GoogleAuthProvider,
-                signInWithPopup
-            }}
-            from
-            "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    if "firebase_user" not in st.session_state:
+        st.session_state["firebase_user"] = None
 
 
-            const firebaseConfig =
-            {json.dumps(FIREBASE_CONFIG)};
+    firebase_login_page()
 
-
-            const app =
-            initializeApp(firebaseConfig);
-
-
-            const auth =
-            getAuth(app);
-
-
-            const provider =
-            new GoogleAuthProvider();
-
-
-            signInWithPopup(
-                auth,
-                provider
-            )
-            .then(async(result)=>{{
-
-                const token =
-                await result.user.getIdToken();
-
-
-                localStorage.setItem(
-                    "firebase_user",
-                    JSON.stringify({{
-                        uid: result.user.uid,
-                        email: result.user.email,
-                        name: result.user.displayName,
-                        id_token: token
-                    }})
-                );
-
-
-                window.parent.location.reload();
-
-            }})
-            .catch((error)=>{{
-
-                document.body.innerHTML =
-                error.message;
-
-            }});
-
-            </script>
-            """,
-            height=100,
-        )
 
     return st.session_state.get(
         "firebase_user"
