@@ -12,15 +12,39 @@ def render_train():
     st.title("🧠 Train Model")
     st.caption("Train and review a fraud detection model using your selected dataset.")
 
-    data_path = st.text_input(
-        "Dataset Path (CSV)",
-        value="",
-        placeholder="Browse or paste the full path to your dataset...",
-        help="Enter the path to the CSV file used for training.",
+    uploaded_file = st.file_uploader(
+        "Upload Dataset (CSV)",
+        type=["csv"],
     )
 
     if st.button("Start Training", use_container_width=True):
-        active_dataset_path = data_path.strip().strip('"')
+        if uploaded_file is None:
+            st.error("Please upload a dataset CSV file.")
+            return
+
+        project_root = os.path.dirname(
+            os.path.dirname(
+                os.path.dirname(__file__)
+            )
+        )
+
+        uploads_dir = os.path.join(
+            project_root,
+            "uploads"
+        )
+
+        os.makedirs(
+            uploads_dir,
+            exist_ok=True
+        )
+
+        active_dataset_path = os.path.join(
+            uploads_dir,
+            uploaded_file.name
+        )
+
+        with open(active_dataset_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
         
 
         if not active_dataset_path:
