@@ -99,107 +99,66 @@ def render_login():
         )
         st.stop()
 
-    firebase_config_json = json.dumps(
-        FIREBASE_CONFIG
-    )
-    st.write(FIREBASE_CONFIG)
-
-    components.html(
-        f"""
-        <script type="module">
-
-        import {{ initializeApp }}
-        from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-
-        import {{
-            getAuth,
-            GoogleAuthProvider,
-            signInWithRedirect,
-            getRedirectResult
-        }}
-        from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-
-
-        const config = {firebase_config_json};
-
-        const app = initializeApp(config);
-
-        const auth = getAuth(app);
-
-        const provider = new GoogleAuthProvider();
-        const redirectResult = await getRedirectResult(auth);
-
-        if (redirectResult) {{
-            const token = await redirectResult.user.getIdToken();
-
-            localStorage.setItem(
-                "firebase_user",
-                JSON.stringify({{
-                    uid: redirectResult.user.uid,
-                    email: redirectResult.user.email,
-                    name: redirectResult.user.displayName,
-                    id_token: token
-                }})
-            );
-
-            window.parent.location.reload();
-        }}
-
-
-        document.body.innerHTML = `
-        <div style="
-            max-width:430px;
-            margin:40px auto;
-            padding:30px;
-            text-align:center;
-            background:#1A0033;
-            border:1px solid #5A189A;
-            border-radius:14px;
-            color:white;
-        ">
+    st.markdown(
+        """
+        <div class="login-card">
             <h2>FraudShield AI</h2>
-
-            <p>
-            Sign in securely with your Google account.
-            </p>
-
-            <button id="login"
-            style="
-            width:100%;
-            padding:13px;
-            background:#7B2CBF;
-            color:white;
-            border:none;
-            border-radius:8px;
-            font-size:16px;
-            ">
-            Continue with Google
-            </button>
-
-            <p id="status"></p>
+            <p>Sign in securely with your Google account.</p>
         </div>
-        `;
+        """,
+        unsafe_allow_html=True,
+    )
+
+    login_clicked = st.button(
+        "Continue with Google",
+        use_container_width=True,
+    )
+
+    if login_clicked:
+        st.info(
+            "Firebase login initialization started."
+        )
+
+        components.html(
+            f"""
+            <script type="module">
+
+            import {{
+                initializeApp
+            }}
+            from
+            "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+            import {{
+                getAuth,
+                GoogleAuthProvider,
+                signInWithPopup
+            }}
+            from
+            "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 
-        document
-        .getElementById("login")
-        .onclick = async () => {{
-
-            const status =
-            document.getElementById("status");
-
-            status.innerHTML =
-            "Signing in...";
+            const firebaseConfig =
+            {json.dumps(FIREBASE_CONFIG)};
 
 
-            try {{
+            const app =
+            initializeApp(firebaseConfig);
 
-                const result =
-                await signInWithRedirect(
-                    auth,
-                    provider
-                );
 
+            const auth =
+            getAuth(app);
+
+
+            const provider =
+            new GoogleAuthProvider();
+
+
+            signInWithPopup(
+                auth,
+                provider
+            )
+            .then(async(result)=>{{
 
                 const token =
                 await result.user.getIdToken();
@@ -218,24 +177,19 @@ def render_login():
 
                 window.parent.location.reload();
 
+            }})
+            .catch((error)=>{{
 
-            }} catch(error) {{
-
-                status.innerHTML =
+                document.body.innerHTML =
                 error.message;
 
-            }}
+            }});
 
-        }};
+            </script>
+            """,
+            height=100,
+        )
 
-        </script>
-        """,
-        height=400,
-    )
-
-
-    user = st.session_state.get(
+    return st.session_state.get(
         "firebase_user"
     )
-
-    return user
