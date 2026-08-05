@@ -655,7 +655,7 @@ admin_emails = {
 
 app_user = st.session_state.get("app_user", {})
 
-user_role = app_user.get("role", "customer")
+
 user_name = app_user.get("name") or firebase_user.get("name") or "User"
 user_email = app_user.get("email") or firebase_user.get("email") or ""
 
@@ -671,14 +671,7 @@ Real-Time Fraud Detection Platform
 </div>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown(f"**Signed in as:** {user_name}")
-st.sidebar.markdown(f"**Role:** {user_role.title()}")
 
-if st.sidebar.button("Logout", use_container_width=True):
-    st.session_state.pop("firebase_user", None)
-    st.session_state.pop("app_user", None)
-    st.session_state.pop("user_role", None)
-    st.rerun()
 
 FASTAPI_BASE_URL = os.environ.get("FASTAPI_BASE_URL", "http://127.0.0.1:8000")
 try:
