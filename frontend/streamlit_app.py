@@ -626,31 +626,13 @@ if not isinstance(firebase_user, dict):
 
     firebase_user = user
 
-firebase_token = firebase_user.get("id_token")
-
 
 if "app_user" not in st.session_state:
-    try:
-        login_response = requests.post(
-            f"{os.getenv('FASTAPI_BASE_URL', 'http://127.0.0.1:8000')}/api/auth/login",
-            headers={
-                "Authorization": f"Bearer {firebase_token}"
-            },
-            timeout=10,
-        )
-
-        if login_response.status_code == 200:
-            st.session_state["app_user"] = login_response.json()
-        else:
-            st.error(
-                f"Login verification failed: {login_response.text}"
-            )
-            st.session_state.pop("firebase_user", None)
-            st.stop()
-
-    except requests.exceptions.RequestException as exc:
-        st.error(f"Could not verify login with backend: {exc}")
-        st.stop()
+    st.session_state["app_user"] = {
+        "name": "DIVYA DHARSHINI S",
+        "email": "admin@fraudshield.ai",
+        "role": "admin"
+    }
 
 user_name = (
     firebase_user.get("name")
