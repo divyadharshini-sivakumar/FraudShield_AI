@@ -177,6 +177,7 @@ def render_login():
     firebase_config_json = json.dumps(
         FIREBASE_CONFIG
     )
+    st.write(FIREBASE_CONFIG)
 
     components.html(
         f"""
