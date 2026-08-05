@@ -8,7 +8,6 @@ from app.db.session import Base, engine
 
 # Import models so SQLAlchemy registers their tables.
 from app.db.models import DetectionRecord
-from app.db.user_model import AppUser
 
 
 logging.basicConfig(level=logging.INFO)
