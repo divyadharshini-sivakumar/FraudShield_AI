@@ -1,0 +1,29 @@
+# Environment
+.env
+
+# Firebase secret
+firebase_service_account.json
+
+# Virtual environments
+venv/
+venv_frontend/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database
+*.db
+
+# Streamlit
+.streamlit/
+
+# Model files (optional - recommended if large)
+trained_models/
+
+# Reports generated during training
+reports/
+
+# OS files
+.DS_Store
+Thumbs.db
