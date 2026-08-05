@@ -180,72 +180,118 @@ def render_login():
 
     components.html(
         f"""
-        <style>
-        {LOGIN_CSS}
-        </style>
-
-        <div class="login-card">
-            <h2>FraudShield AI</h2>
-            <p>Sign in securely with your Google account.</p>
-
-            <button id="google-login">
-                Continue with Google
-            </button>
-
-            <p id="login-status"></p>
-        </div>
-
         <script type="module">
 
-        import {{
-            initializeApp
-        }} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import {{ initializeApp }}
+        from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 
         import {{
             getAuth,
             GoogleAuthProvider,
             signInWithPopup
-        }} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        }}
+        from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 
-        const firebaseConfig = {firebase_config_json};
+        const config = {firebase_config_json};
 
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp(config);
 
         const auth = getAuth(app);
 
         const provider = new GoogleAuthProvider();
 
 
+        document.body.innerHTML = `
+        <div style="
+            max-width:430px;
+            margin:40px auto;
+            padding:30px;
+            text-align:center;
+            background:#1A0033;
+            border:1px solid #5A189A;
+            border-radius:14px;
+            color:white;
+        ">
+            <h2>FraudShield AI</h2>
+
+            <p>
+            Sign in securely with your Google account.
+            </p>
+
+            <button id="login"
+            style="
+            width:100%;
+            padding:13px;
+            background:#7B2CBF;
+            color:white;
+            border:none;
+            border-radius:8px;
+            font-size:16px;
+            ">
+            Continue with Google
+            </button>
+
+            <p id="status"></p>
+        </div>
+        `;
+
+
         document
-        .getElementById("google-login")
+        .getElementById("login")
         .onclick = async () => {{
 
-            const result =
+            const status =
+            document.getElementById("status");
+
+            status.innerHTML =
+            "Signing in...";
+
+
+            try {{
+
+                const result =
                 await signInWithPopup(
                     auth,
                     provider
                 );
 
-            const token =
+
+                const token =
                 await result.user.getIdToken();
 
 
-            window.parent.postMessage(
-                {{
-                    type: "firebase_login",
-                    user: {{
+                localStorage.setItem(
+                    "firebase_user",
+                    JSON.stringify({{
                         uid: result.user.uid,
                         email: result.user.email,
                         name: result.user.displayName,
                         id_token: token
-                    }}
-                }},
-                "*"
-            );
-        }}
+                    }})
+                );
+
+
+                window.parent.location.reload();
+
+
+            }} catch(error) {{
+
+                status.innerHTML =
+                error.message;
+
+            }}
+
+        }};
 
         </script>
         """,
-        height=350,
+        height=400,
     )
+
+
+    user = st.session_state.get(
+        "firebase_user"
+    )
+
+    return user
