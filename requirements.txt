@@ -7,3 +7,4 @@ requests==2.32.3
 streamlit-js-eval
 openai==1.30.5
 starlette==0.37.2
+joblib==1.4.2
