@@ -1,33 +1,57 @@
+import json
 import os
 
 import firebase_admin
 from firebase_admin import credentials
 
 
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(
-        os.path.dirname(__file__)
-    )
-)
-
-SERVICE_ACCOUNT_PATH = os.path.join(
-    PROJECT_ROOT,
-    "firebase_service_account.json",
-)
-
-
 def initialize_firebase_admin():
     try:
         return firebase_admin.get_app()
+
     except ValueError:
-        if not os.path.exists(SERVICE_ACCOUNT_PATH):
+        service_account_json = os.getenv(
+            "FIREBASE_SERVICE_ACCOUNT_JSON",
+            "",
+        )
+
+        if service_account_json:
+            try:
+                service_account_info = json.loads(
+                    service_account_json
+                )
+            except json.JSONDecodeError as exc:
+                raise RuntimeError(
+                    "FIREBASE_SERVICE_ACCOUNT_JSON is invalid."
+                ) from exc
+
+            credential = credentials.Certificate(
+                service_account_info
+            )
+
+            return firebase_admin.initialize_app(
+                credential
+            )
+
+        # Local development fallback
+        project_root = os.path.dirname(
+            os.path.dirname(
+                os.path.dirname(__file__)
+            )
+        )
+
+        service_account_path = os.path.join(
+            project_root,
+            "firebase_service_account.json",
+        )
+
+        if not os.path.exists(service_account_path):
             raise FileNotFoundError(
-                f"Firebase service account file not found: "
-                f"{SERVICE_ACCOUNT_PATH}"
+                "Firebase credentials are not configured."
             )
 
         credential = credentials.Certificate(
-            SERVICE_ACCOUNT_PATH
+            service_account_path
         )
 
         return firebase_admin.initialize_app(
