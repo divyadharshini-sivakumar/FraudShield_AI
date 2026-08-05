@@ -3,27 +3,8 @@ import sys
 import os
 import requests
 from dotenv import load_dotenv
-import streamlit.components.v1 as components
 
-def receive_firebase_login():
-    components.html(
-        """
-        <script>
-        window.addEventListener("message", (event) => {
-            if (event.data.type === "firebase_login") {
-                window.parent.postMessage(
-                    {
-                        type: "streamlit:setComponentValue",
-                        value: event.data.user
-                    },
-                    "*"
-                );
-            }
-        });
-        </script>
-        """,
-        height=0,
-    )
+
 # Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -617,16 +598,6 @@ firebase_user = {
     "email": "admin@fraudshield.ai"
 }
 
-if not isinstance(firebase_user, dict):
-    st.session_state.pop("firebase_user", None)
-    user = render_login()
-
-    if not user:
-        st.stop()
-
-    firebase_user = user
-
-
 if "app_user" not in st.session_state:
     st.session_state["app_user"] = {
         "name": "DIVYA DHARSHINI S",
@@ -654,6 +625,7 @@ admin_emails = {
 }
 
 app_user = st.session_state.get("app_user", {})
+user_role = app_user.get("role", "admin")
 
 
 user_name = app_user.get("name") or firebase_user.get("name") or "User"
