@@ -624,12 +624,7 @@ if not isinstance(firebase_user, dict):
 
     firebase_user = user
 
-firebase_token = firebase_user.get("id_token")
 
-if not firebase_token:
-    st.error("Firebase login token is missing. Please log in again.")
-    st.session_state.pop("firebase_user", None)
-    st.stop()
 
 if "app_user" not in st.session_state:
     st.session_state["app_user"] = {
