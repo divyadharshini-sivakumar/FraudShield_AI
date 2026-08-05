@@ -1,8 +1,8 @@
 import json
 import os
 
-import requests
 import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
 
@@ -17,76 +17,6 @@ FIREBASE_CONFIG = {
     "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
     "appId": os.getenv("FIREBASE_APP_ID"),
 }
-
-
-def firebase_login_page():
-
-    st.markdown(
-        """
-        <style>
-        .login-card {
-            max-width:430px;
-            margin:60px auto;
-            padding:35px;
-            text-align:center;
-            background:#1A0033;
-            border:1px solid #5A189A;
-            border-radius:16px;
-            color:white;
-        }
-
-        .login-title {
-            font-size:32px;
-            font-weight:700;
-        }
-
-        .login-text {
-            color:#C8B8DB;
-            margin-bottom:25px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-    st.markdown(
-        """
-        <div class="login-card">
-
-        <div class="login-title">
-        🛡️ FraudShield AI
-        </div>
-
-        <br>
-
-        <div class="login-text">
-        Sign in securely with your Google account.
-        </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-    login_url = (
-        "https://accounts.google.com/o/oauth2/v2/auth"
-        "?client_id="
-        + os.getenv("GOOGLE_CLIENT_ID", "")
-        + "&redirect_uri="
-        + os.getenv("GOOGLE_REDIRECT_URI", "")
-        + "&response_type=id_token"
-        "&scope=email%20profile%20openid"
-        "&nonce=firebase"
-    )
-
-
-    st.link_button(
-        "Continue with Google",
-        login_url,
-        use_container_width=True,
-    )
 
 
 def render_login():
@@ -109,7 +39,124 @@ def render_login():
         st.session_state["firebase_user"] = None
 
 
-    firebase_login_page()
+    components.html(
+        f"""
+        <script type="module">
+
+        import {{
+            initializeApp
+        }} from
+        "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+
+        import {{
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup
+        }} from
+        "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+
+        const config = {json.dumps(FIREBASE_CONFIG)};
+
+
+        const app = initializeApp(config);
+
+        const auth = getAuth(app);
+
+        const provider = new GoogleAuthProvider();
+
+
+        document.body.innerHTML = `
+
+        <div style="
+            text-align:center;
+            padding:40px;
+            color:white;
+        ">
+
+        <h2>
+        🛡️ FraudShield AI
+        </h2>
+
+        <p>
+        Sign in securely with your Google account.
+        </p>
+
+
+        <button id="google-login"
+        style="
+        padding:14px 40px;
+        border-radius:8px;
+        border:none;
+        background:#7B2CBF;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+        ">
+        Continue with Google
+        </button>
+
+
+        <p id="status"></p>
+
+        </div>
+
+        `;
+
+
+        document
+        .getElementById("google-login")
+        .onclick = async () => {{
+
+            const status =
+            document.getElementById("status");
+
+
+            try {{
+
+                status.innerHTML =
+                "Signing in...";
+
+
+                const result =
+                await signInWithPopup(
+                    auth,
+                    provider
+                );
+
+
+                const token =
+                await result.user.getIdToken();
+
+
+                localStorage.setItem(
+                    "firebase_user",
+                    JSON.stringify({{
+                        uid: result.user.uid,
+                        email: result.user.email,
+                        name: result.user.displayName,
+                        id_token: token
+                    }})
+                );
+
+
+                window.parent.location.reload();
+
+
+            }} catch(error) {{
+
+                status.innerHTML =
+                error.message;
+
+            }}
+
+        }};
+
+        </script>
+        """,
+        height=300,
+    )
 
 
     return st.session_state.get(
