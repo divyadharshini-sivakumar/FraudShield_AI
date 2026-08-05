@@ -84,81 +84,6 @@ LOGIN_CSS = """
 }
 """
 
-
-LOGIN_JS = """
-export default function(component) {
-    const {
-        data,
-        setTriggerValue,
-        parentElement
-    } = component;
-
-    const firebaseConfig = data.firebaseConfig;
-
-    const status = parentElement.querySelector("#login-status");
-    const button = parentElement.querySelector("#google-login");
-
-    async function loadFirebase() {
-        const appModule = await import(
-            "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
-        );
-
-        const authModule = await import(
-            "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js"
-        );
-
-        return {
-            appModule,
-            authModule
-        };
-    }
-
-    button.onclick = async () => {
-        try {
-            button.disabled = true;
-            status.textContent = "Signing in...";
-
-            const {
-                appModule,
-                authModule
-            } = await loadFirebase();
-
-            const app = appModule.getApps().length
-                ? appModule.getApp()
-                : appModule.initializeApp(firebaseConfig);
-
-            const auth = authModule.getAuth(app);
-            const provider = new authModule.GoogleAuthProvider();
-
-            const result = await authModule.signInWithPopup(
-                auth,
-                provider
-            );
-
-            const user = result.user;
-            const idToken = await user.getIdToken(true);
-
-            setTriggerValue("auth_result", {
-                uid: user.uid,
-                email: user.email,
-                name: user.displayName,
-                photo_url: user.photoURL,
-                id_token: idToken
-            });
-
-            status.textContent = "Signed in successfully.";
-
-        } catch (error) {
-            status.textContent =
-                "Login failed: " + error.message;
-
-        } finally {
-            button.disabled = false;
-        }
-    };
-}
-"""
-
 def render_login():
 
     missing = [
@@ -205,20 +130,20 @@ def render_login():
         const redirectResult = await getRedirectResult(auth);
 
         if (redirectResult) {{
-            const token = await redirectResult.user.getIdToken();}}
+            const token = await redirectResult.user.getIdToken();
 
             localStorage.setItem(
                 "firebase_user",
-                JSON.stringify({
+                JSON.stringify({{
                     uid: redirectResult.user.uid,
                     email: redirectResult.user.email,
                     name: redirectResult.user.displayName,
                     id_token: token
-                })
+                }})
             );
 
             window.parent.location.reload();
-        }
+        }}
 
 
         document.body.innerHTML = `
