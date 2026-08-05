@@ -18,8 +18,8 @@ __pycache__/
 # Streamlit
 .streamlit/
 
-# Model files (optional - recommended if large)
-trained_models/
+
+
 
 # Reports generated during training
 reports/
