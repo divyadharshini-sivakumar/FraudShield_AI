@@ -618,7 +618,16 @@ if "firebase_user" not in st.session_state:
     if not user:
         st.stop()
 
-firebase_user = st.session_state.get("firebase_user", {})
+firebase_user = st.session_state.get("firebase_user")
+
+if not isinstance(firebase_user, dict):
+    st.session_state.pop("firebase_user", None)
+    user = render_login()
+
+    if not user:
+        st.stop()
+
+    firebase_user = user
 
 firebase_token = firebase_user.get("id_token")
 
