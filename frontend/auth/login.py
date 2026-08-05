@@ -204,8 +204,8 @@ def render_login():
         const provider = new GoogleAuthProvider();
         const redirectResult = await getRedirectResult(auth);
 
-        if (redirectResult) {
-            const token = await redirectResult.user.getIdToken();
+        if (redirectResult) {{
+            const token = await redirectResult.user.getIdToken();}}
 
             localStorage.setItem(
                 "firebase_user",
