@@ -4,7 +4,27 @@ import os
 import requests
 from dotenv import load_dotenv
 from auth.login import render_login
+import streamlit.components.v1 as components
 
+def receive_firebase_login():
+    components.html(
+        """
+        <script>
+        window.addEventListener("message", (event) => {
+            if (event.data.type === "firebase_login") {
+                window.parent.postMessage(
+                    {
+                        type: "streamlit:setComponentValue",
+                        value: event.data.user
+                    },
+                    "*"
+                );
+            }
+        });
+        </script>
+        """,
+        height=0,
+    )
 # Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -592,6 +612,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # Require Firebase login after the theme has loaded
 if "firebase_user" not in st.session_state:
+    st.session_state["firebase_user"] = None
     user = render_login()
 
     if not user:
