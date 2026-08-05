@@ -4,7 +4,6 @@ numpy==1.26.4
 python-dotenv==1.0.1
 plotly==5.22.0
 requests==2.32.3
-pyrebase4
 streamlit-js-eval
 openai==1.30.5
 starlette==0.37.2

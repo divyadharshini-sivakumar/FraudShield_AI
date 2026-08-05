@@ -10,12 +10,6 @@ class AppUser(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    firebase_uid = Column(
-        String,
-        unique=True,
-        nullable=False,
-        index=True,
-    )
 
     name = Column(
         String,

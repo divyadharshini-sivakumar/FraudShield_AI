@@ -1,9 +1,6 @@
 # Environment
 .env
 
-# Firebase secret
-firebase_service_account.json
-
 # Virtual environments
 venv/
 venv_frontend/

@@ -436,22 +436,6 @@ st.markdown("""
         display: none !important;
     }
 
-    /* Hide the full sidebar on the login page */
-    body:has(.firebase-login-marker) section[data-testid="stSidebar"] {
-        display: none !important;
-    }
-
-    /* Hide the sidebar open/collapse button on the login page */
-    body:has(.firebase-login-marker) [data-testid="collapsedControl"],
-    body:has(.firebase-login-marker) [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
-    }
-
-    /* Center the login page */
-    body:has(.firebase-login-marker) .block-container {
-        max-width: 760px !important;
-        padding-top: 7rem !important;
-    }
 
     /* Placeholder text inside Selectbox */
     .stSelectbox div[data-baseweb="select"] > div {
@@ -592,45 +576,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-
-firebase_user = {
-    "name": "DIVYA DHARSHINI S",
-    "email": "admin@fraudshield.ai"
-}
-
 if "app_user" not in st.session_state:
     st.session_state["app_user"] = {
-        "name": "DIVYA DHARSHINI S",
-        "email": "admin@fraudshield.ai",
         "role": "admin"
     }
 
-user_name = (
-    firebase_user.get("name")
-    or firebase_user.get("email")
-    or "User"
-)
-user_email = (
-    firebase_user.get("email")
-    or ""
-).strip().lower()
-
-admin_emails = {
-    email.strip().lower()
-    for email in os.getenv(
-        "FIREBASE_ADMIN_EMAILS",
-        "",
-    ).split(",")
-    if email.strip()
-}
-
 app_user = st.session_state.get("app_user", {})
 user_role = app_user.get("role", "admin")
-
-
-user_name = app_user.get("name") or firebase_user.get("name") or "User"
-user_email = app_user.get("email") or firebase_user.get("email") or ""
-
 st.session_state["user_role"] = user_role
 
 # Sidebar
