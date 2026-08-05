@@ -189,7 +189,8 @@ def render_login():
         import {{
             getAuth,
             GoogleAuthProvider,
-            signInWithPopup
+            signInWithRedirect,
+            getRedirectResult
         }}
         from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
@@ -201,6 +202,23 @@ def render_login():
         const auth = getAuth(app);
 
         const provider = new GoogleAuthProvider();
+        const redirectResult = await getRedirectResult(auth);
+
+        if (redirectResult) {
+            const token = await redirectResult.user.getIdToken();
+
+            localStorage.setItem(
+                "firebase_user",
+                JSON.stringify({
+                    uid: redirectResult.user.uid,
+                    email: redirectResult.user.email,
+                    name: redirectResult.user.displayName,
+                    id_token: token
+                })
+            );
+
+            window.parent.location.reload();
+        }
 
 
         document.body.innerHTML = `
@@ -252,7 +270,7 @@ def render_login():
             try {{
 
                 const result =
-                await signInWithPopup(
+                await signInWithRedirect(
                     auth,
                     provider
                 );
