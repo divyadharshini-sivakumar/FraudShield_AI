@@ -61,7 +61,7 @@ def load_data():
             st.error(f"Error loading dataset: {e}")
             return None
 
-    st.error(f"Dataset not found: {csv_path}")
+    
     return None
 # =========================
 # Dashboard
@@ -92,13 +92,21 @@ def render_dashboard():
         except Exception:
             pass
 
-    st.info(f"📂 Current Dataset: **{dataset_name}**")
+    if dataset_name != "No dataset selected":
+        st.info(f"📂 Current Dataset: **{dataset_name}**")
 
     df = load_data()
 
     if df is None:
-        st.warning(
-            "Historical dataset not found. Please place historical_transactions.csv inside the project."
+        st.info(
+            """
+            📊 **Dashboard ready**
+
+            No historical dataset is loaded yet.
+
+            Go to **Train Model**, upload a CSV file, and start training.
+            The dashboard will display analytics after a dataset is available.
+            """
         )
         return
 
