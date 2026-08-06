@@ -92,8 +92,7 @@ def render_dashboard():
         except Exception:
             pass
 
-    if dataset_name != "No dataset selected":
-        st.info(f"📂 Current Dataset: **{dataset_name}**")
+    
 
     df = load_data()
 
