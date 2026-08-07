@@ -532,4 +532,75 @@ def render_dashboard():
             )
 
    
+
+    # ==========================================================
+    # FRAUD TRANSACTION DETAILS
+    # ==========================================================
+
+    st.write("")
+    st.markdown("---")
+    st.subheader("🚨 Fraud Transaction Details")
+
+    if "Fraud_Label" in df.columns:
+        fraud_mask = (
+            df["Fraud_Label"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .isin(["1", "fraud", "fraudulent", "yes", "true"])
+        )
+
+        fraud_transactions = df[fraud_mask].copy()
+
+        if not fraud_transactions.empty:
+            preferred_columns = [
+                "Transaction_ID",
+                "Timestamp",
+                "Amount",
+                "Merchant",
+                "Merchant_Category",
+                "Payment_Method",
+                "Payment_Channel",
+                "City",
+                "State",
+                "Country",
+                "Device_Type",
+                "Risk_Score",
+                "Fraud_Label",
+            ]
+
+            available_columns = [
+                column
+                for column in preferred_columns
+                if column in fraud_transactions.columns
+            ]
+
+            fraud_table = (
+                fraud_transactions[available_columns]
+                if available_columns
+                else fraud_transactions
+            )
+
+            st.caption(
+                f"Showing {len(fraud_transactions):,} fraudulent transactions "
+                "from the current dataset."
+            )
+
+            st.dataframe(
+                fraud_table,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        else:
+            st.success(
+                "✅ No fraudulent transactions found in the current dataset."
+            )
+
+    else:
+        st.info(
+            "Fraud transaction details are unavailable because "
+            "the dataset does not contain a Fraud_Label column."
+        )
+
     st.success("✔ Dashboard updated successfully.")
