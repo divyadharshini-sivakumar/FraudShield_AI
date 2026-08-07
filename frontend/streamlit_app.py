@@ -654,6 +654,7 @@ st.sidebar.markdown("---")
 
 if user_role == "admin":
     page_options = [
+        "ℹ️ About",
         "📊 Dashboard",
         "🔍 Prediction",
         "📑 Reports",
@@ -671,7 +672,11 @@ page = st.sidebar.radio(
     page_options,
 )
 
-if page == "📊 Dashboard":
+if page == "ℹ️ About":
+    from frontend.pages.about import render_about
+    render_about()
+
+elif page == "📊 Dashboard":
     from frontend.pages.dashboard import render_dashboard
     render_dashboard()
 elif page == "🔍 Prediction":
