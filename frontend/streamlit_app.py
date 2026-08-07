@@ -654,12 +654,12 @@ st.sidebar.markdown("---")
 
 if user_role == "admin":
     page_options = [
-        "ℹ️ About",
         "📊 Dashboard",
         "🔍 Prediction",
         "📑 Reports",
         "🤖 Chatbot",
         "⚙️ Train Model",
+        "ℹ️ About",
     ]
 else:
     page_options = [
