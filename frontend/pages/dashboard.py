@@ -531,17 +531,15 @@ def render_dashboard():
                 use_container_width=True
             )
 
-   
-
-    # ==========================================================
+    # =========================================================
     # FRAUD TRANSACTION DETAILS
-    # ==========================================================
+    # =========================================================
 
-    st.write("")
     st.markdown("---")
     st.subheader("🚨 Fraud Transaction Details")
 
     if "Fraud_Label" in df.columns:
+
         fraud_mask = (
             df["Fraud_Label"]
             .astype(str)
@@ -553,54 +551,21 @@ def render_dashboard():
         fraud_transactions = df[fraud_mask].copy()
 
         if not fraud_transactions.empty:
-            preferred_columns = [
-                "Transaction_ID",
-                "Timestamp",
-                "Amount",
-                "Merchant",
-                "Merchant_Category",
-                "Payment_Method",
-                "Payment_Channel",
-                "City",
-                "State",
-                "Country",
-                "Device_Type",
-                "Risk_Score",
-                "Fraud_Label",
-            ]
-
-            available_columns = [
-                column
-                for column in preferred_columns
-                if column in fraud_transactions.columns
-            ]
-
-            fraud_table = (
-                fraud_transactions[available_columns]
-                if available_columns
-                else fraud_transactions
-            )
 
             st.caption(
-                f"Showing {len(fraud_transactions):,} fraudulent transactions "
-                "from the current dataset."
+                f"Showing {len(fraud_transactions)} detected fraudulent transactions."
             )
 
             st.dataframe(
-                fraud_table,
+                fraud_transactions,
                 use_container_width=True,
                 hide_index=True,
             )
 
         else:
-            st.success(
-                "✅ No fraudulent transactions found in the current dataset."
-            )
+            st.success("✅ No fraudulent transactions found in the current dataset.")
 
     else:
-        st.info(
-            "Fraud transaction details are unavailable because "
-            "the dataset does not contain a Fraud_Label column."
-        )
-
+        st.warning("Fraud_Label column is not available in the current dataset.")
+   
     st.success("✔ Dashboard updated successfully.")
